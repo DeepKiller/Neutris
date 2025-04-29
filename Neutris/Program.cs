@@ -12,7 +12,7 @@ namespace Neutris
 
             var counter = 0;
 
-            Generation generation = new(90, 1, 3, 5);
+            Generation generation = new(1000, 1, 3, 5);
 
             while (counter <= 10000)
             {

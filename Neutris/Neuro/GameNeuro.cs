@@ -14,7 +14,7 @@ namespace Neutris.Neuro
         public ulong Points { get; private set; } = 0;
         public ulong Ticks { get; private set; } = 0;
 
-        public bool[,] Map { get => Field.RenderCurrentState(); }
+        public int[,] Map { get => Field.RenderCurrentState(); }
 
         public void Clear(Network newGeneration)
         {

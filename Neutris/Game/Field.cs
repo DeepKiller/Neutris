@@ -8,7 +8,7 @@
         internal const uint WIDTH = 10;
         internal const uint HEIGHT = 20;
 
-        public bool[,] Map { get; private set; } = new bool[WIDTH, HEIGHT];
+        public int[,] Map { get; private set; } = new int[WIDTH, HEIGHT];
         private Figure? LastFigure;
 
         public void FixFigure(Figure figure)
@@ -17,9 +17,9 @@
             {
                 for (int yF = 0; yF < figure.Map.GetLength(1); yF++)
                 {
-                    if (figure.Map[xF, yF])
+                    if (figure.Map[xF, yF] > 0)
                     {
-                        Map[xF + figure.X, yF + figure.Y] = true;
+                        Map[xF + figure.X, yF + figure.Y] = figure.Map[xF, yF];
                     }
                 }
             }
@@ -33,7 +33,7 @@
                 {
                     for (int x = 0; x < WIDTH; x++)
                     {
-                        Map[x, y] = false;
+                        Map[x, y] = 0;
                     }
                 }
                 else
@@ -56,7 +56,7 @@
                 {
                     var pos = Map[x, y];
 
-                    if (pos)
+                    if (pos > 0)
                     {
                         if (x == WIDTH - 1)
                         {
@@ -85,18 +85,18 @@
             return false;
         }
 
-        private bool[,] GetMapWithFigure()
+        private int[,] GetMapWithFigure()
         {
-            var clone = Map.Clone() as bool[,];
+            var clone = Map.Clone() as int[,];
             if (LastFigure is Figure figure && clone is not null)
             {
                 for (int xF = 0; xF < figure.Map.GetLength(0); xF++)
                 {
                     for (int yF = 0; yF < figure.Map.GetLength(1); yF++)
                     {
-                        if (figure.Map[xF, yF])
+                        if (figure.Map[xF, yF] > 0)
                         {
-                            clone[xF + figure.X, yF + figure.Y] = true;
+                            clone[xF + figure.X, yF + figure.Y] = figure.Map[xF, yF];
                         }
                     }
                 }
@@ -113,9 +113,9 @@
             {
                 for (int yF = 0; yF < figure.Map.GetLength(1); yF++)
                 {
-                    if (figure.Map[xF, yF])
+                    if (figure.Map[xF, yF] > 0)
                     {
-                        if (Map[xF + figure.X, yF + figure.Y])
+                        if (Map[xF + figure.X, yF + figure.Y] > 0)
                         {
                             return true;
                         }
@@ -126,7 +126,7 @@
             return false;
         }
 
-        public bool[,] RenderCurrentState()
+        public int[,] RenderCurrentState()
         {
             return GetMapWithFigure();
         }

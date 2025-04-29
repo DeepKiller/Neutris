@@ -2,14 +2,14 @@
 
 namespace Neutris.Game
 {
-    internal class Figure(bool[,] map)
+    internal class Figure(int[,] map)
     {
         public uint X { get; protected set; } = Field.WIDTH / 2 - 2;
         public uint Y { get; protected set; }
 
-        public bool[,] Map { get; private set; } = map;
+        public int[,] Map { get; private set; } = map;
 
-        public Figure(bool[,] map, uint x, uint y) : this(map)
+        public Figure(int[,] map, uint x, uint y) : this(map)
         {
             X = x;
             Y = y;
@@ -63,7 +63,7 @@ namespace Neutris.Game
 
         private void InnerRotate(bool reverse, Field field)
         {
-            var newMap = new bool[Map.GetLength(1), Map.GetLength(0)];
+            var newMap = new int[Map.GetLength(1), Map.GetLength(0)];
             var nx = 0;
             var ny = 0;
 
@@ -139,10 +139,10 @@ namespace Neutris.Game
 
     internal class OFigure : Figure
     {
-        static readonly bool[,] map = new bool[2, 2]
+        static readonly int[,] map = new int[2, 2]
         {
-            { true, true },
-            { true, true }
+            { 1, 1 },
+            { 1, 1 }
         };
 
         public OFigure() : base(map)
@@ -153,10 +153,10 @@ namespace Neutris.Game
 
     internal class LFigure : Figure
     {
-        static readonly bool[,] map = new bool[2, 3]
+        static readonly int[,] map = new int[2, 3]
             {
-                {false,false,true},
-                {true,true,true},
+                {0,0,2},
+                {2,2,2},
             };
 
         public LFigure() : base(map)
@@ -166,10 +166,10 @@ namespace Neutris.Game
     }
     internal class JFigure : Figure
     {
-        static readonly bool[,] map = new bool[2, 3]
+        static readonly int[,] map = new int[2, 3]
             {
-                {true,true,true},
-                {false,false,true},
+                {3,3,3},
+                {0,0,3},
             };
 
         public JFigure() : base(map)
@@ -180,10 +180,10 @@ namespace Neutris.Game
 
     internal class TFigure : Figure
     {
-        static readonly bool[,] map = new bool[2, 3]
+        static readonly int[,] map = new int[2, 3]
             {
-                {false,true,false},
-                {true,true,true},
+                {0,4,0},
+                {4,4,4},
             };
 
         public TFigure() : base(map)
@@ -194,9 +194,9 @@ namespace Neutris.Game
 
     internal class IFigure : Figure
     {
-        static readonly bool[,] map = new bool[1, 4]
+        static readonly int[,] map = new int[1, 4]
             {
-                {true,true,true,true},
+                {5,5,5,5},
             };
 
         public IFigure() : base(map)
@@ -207,10 +207,10 @@ namespace Neutris.Game
 
     internal class SFigure : Figure
     {
-        static readonly bool[,] map = new bool[2, 3]
+        static readonly int[,] map = new int[2, 3]
             {
-                {false,true,true},
-                { true,true,false}
+                {0,6,6},
+                { 6,6,0}
             };
 
         public SFigure() : base(map)
@@ -221,10 +221,10 @@ namespace Neutris.Game
 
     internal class ZFigure : Figure
     {
-        static readonly bool[,] map = new bool[2, 3]
+        static readonly int[,] map = new int[2, 3]
             {
-                {true,true,false},
-                { false,true,true}
+                {7,7,0},
+                { 0,7,7}
             };
 
         public ZFigure() : base(map)

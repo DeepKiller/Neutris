@@ -56,7 +56,7 @@ namespace Neutris.Neuro
             var best = networks.MaxBy(x => x.Score);
             if (best is not null)
             {
-                if (best.Score > bestScore || generationNumber % 100 == 0)
+                if (best.Score > bestScore || generationNumber % 1 == 0)
                 {
                     if (best.Score > bestScore)
                     {

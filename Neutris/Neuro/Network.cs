@@ -120,7 +120,7 @@ namespace Neutris.Neuro
             {
                 for (int y = 0; y < figure.Map.GetLength(1); y++)
                 {
-                    figureArray[x, y] = figure.Map[x, y] ? 1 : 0;
+                    figureArray[x, y] = figure.Map[x, y] > 0 ? 1 : 0;
                 }
             }
 
@@ -128,7 +128,7 @@ namespace Neutris.Neuro
             {
                 for (int y = 0; y < field.Map.GetLength(1); y++)
                 {
-                    fieldArray[x, y] = field.Map[x, y] ? 1 : 0;
+                    fieldArray[x, y] = field.Map[x, y] > 0 ? 1 : 0;
                 }
             }
 
