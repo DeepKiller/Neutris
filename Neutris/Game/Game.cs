@@ -1,4 +1,5 @@
 ﻿using Neutris.Graphic;
+using Neutris.Neuro.FNN;
 
 namespace Neutris.Game
 {
@@ -8,7 +9,7 @@ namespace Neutris.Game
         FigureQueue FigureQueue = new(1);
         Figure? Current;
 
-        private bool Control(DisplayWindow window)
+        private bool Control(DisplayWindow<Network> window)
         {
             if (Current is not null)
             {
@@ -65,7 +66,7 @@ namespace Neutris.Game
         {
             Current = FigureQueue.GetFigure();
             Field.DrawFigure(Current);
-            using var window = new DisplayWindow(500, 500, "game", new Neuro.GameNeuro(1));
+            using var window = new DisplayWindow<Network>(500, 500, "game", new Neuro.GameNeuro<Network>(1));
             ulong points = 0;
             ulong ticks = 0;
             while (true)

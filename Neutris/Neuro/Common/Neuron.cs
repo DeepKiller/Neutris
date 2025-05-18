@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Neutris.Neuro
+namespace Neutris.Neuro.Common
 {
     internal class Neuron
     {
@@ -22,15 +22,23 @@ namespace Neutris.Neuro
             Inputs.Add(synaps);
         }
 
+        private double? LastRes;
+
+        public void ClearCache()
+        {
+            LastRes = null;
+        }
+
+        public bool IsActive()
+        {
+            return GetResult() > 0;
+        }
+
         public virtual double GetResult()
         {
-            var value = 0d;
-            foreach (var input in Inputs)
-            {
-                value += input.GetValue();
-            }
+            LastRes ??= ActivationFunction(Inputs.Sum(x => x.GetValue()));
 
-            return ActivationFunction(value);
+            return (double)LastRes;
         }
     }
 }

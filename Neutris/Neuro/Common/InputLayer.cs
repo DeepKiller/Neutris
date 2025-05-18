@@ -1,4 +1,4 @@
-﻿namespace Neutris.Neuro
+﻿namespace Neutris.Neuro.Common
 {
     internal class InputLayer(InputNeuron[] neurons) : Layer(neurons)
     {

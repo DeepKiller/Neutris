@@ -1,10 +1,10 @@
-﻿namespace Neutris.Neuro
+﻿namespace Neutris.Neuro.Common
 {
     internal class Synaps
     {
         public double weight;
         private static readonly Random R = new();
-        private Neuron From;
+        public Neuron From { get; private set; }
 
         public Synaps(Neuron from)
         {

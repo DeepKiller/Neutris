@@ -1,22 +1,23 @@
 ﻿using System.Reflection;
 using Neutris.Game;
 using Neutris.Graphic;
+using Neutris.Neuro.FNN;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Neutris.Neuro
 {
-    internal class GameNeuro(int seed)
+    internal class GameNeuro<Tnet>(int seed) where Tnet : INetwork
     {
         Field Field = new();
         FigureQueue FigureQueue = new(seed);
         Figure? Current;
-        public Network Network { get; private set; } = new(3, 5);
+        public Tnet? Network { get; private set; }
         public ulong Points { get; private set; } = 0;
         public ulong Ticks { get; private set; } = 0;
 
         public int[,] Map { get => Field.RenderCurrentState(); }
 
-        public void Clear(Network newGeneration)
+        public void Clear(Tnet newGeneration)
         {
             Field = new();
             Current = null;
@@ -30,19 +31,19 @@ namespace Neutris.Neuro
         {
             if (Current is not null)
             {
-                var input = Network.Predict(Current, Field);
+                var input = Network!.Predict(Current, Field);
 
-                if (input == 1)
+                if (input[0])
                 {
                     Current.Move(Direction.Left, Field);
                     Field.DrawFigure(Current);
                 }
-                else if (input == 2)
+                else if (input[1])
                 {
                     Current.Move(Direction.Right, Field);
                     Field.DrawFigure(Current);
                 }
-                else if (input == 3)
+                else if (input[2])
                 {
                     Current.Rotate(Field);
                     Field.DrawFigure(Current);
@@ -62,7 +63,7 @@ namespace Neutris.Neuro
             };
         }
 
-        public void Play(Network network, bool visual)
+        public void Play(Tnet network, bool visual)
         {
             Network = network;
             if (visual)
@@ -136,9 +137,9 @@ namespace Neutris.Neuro
 
         private void PlayVisual()
         {
-            using var window = new DisplayWindow(500, 500, "game", this);
+            using var window = new DisplayWindow<Tnet>(500, 500, "game", this);
             window.Run();
-            Console.WriteLine($"score is: {Points} points! survived: {Ticks} ticks; score: {Network.Score}");
+            Console.WriteLine($"score is: {Points} points! survived: {Ticks} ticks; score: {Network!.Score}");
         }
     }
 }

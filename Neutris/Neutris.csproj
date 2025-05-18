@@ -13,6 +13,7 @@
 
 	<ItemGroup>
 	  <Folder Include="Graphic\Shaders\" />
+	  <Folder Include="Neuro\NEAT\" />
 	</ItemGroup>
 
 </Project>

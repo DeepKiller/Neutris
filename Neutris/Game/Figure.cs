@@ -120,15 +120,54 @@ namespace Neutris.Game
             }
         }
 
+        public Rotation Rotation { get; private set; } = Rotation.deg0;
+
+        private void SetRotation(bool forward = true)
+        {
+            if (forward)
+            {
+                if (Rotation != Rotation.deg270)
+                {
+                    Rotation = (Rotation)(((int)Rotation) << 1);
+                }
+                else
+                {
+                    Rotation = Rotation.deg0;
+                }
+            }
+            else
+            {
+                if (Rotation != Rotation.deg0)
+                {
+                    Rotation = (Rotation)(((int)Rotation) >> 1);
+                }
+                else
+                {
+                    Rotation = Rotation.deg270;
+                }
+            }
+        }
+
         public void Rotate(Field field)
         {
             InnerRotate(false, field);
+            SetRotation();
 
             if (field.HasIntersection(this))
             {
                 InnerRotate(true, field);
+                SetRotation(false);
             }
         }
+    }
+
+    [Flags]
+    enum Rotation
+    {
+        deg0 = 1,
+        deg90 = 2,
+        deg180 = 4,
+        deg270 = 8
     }
 
     enum Direction

@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
+using Neutris.Neuro.FNN;
 
-namespace Neutris.Neuro
+namespace Neutris.Neuro.Common
 {
     internal class Layer(Neuron[] neurons)
     {
-        private Neuron[] Neurons { get => neurons; }
+        public Neuron[] Neurons { get => neurons; }
         private static Random Random = new();
 
         public void Connect(Layer layer)
@@ -25,7 +26,7 @@ namespace Neutris.Neuro
             if (isMutant && rand >= 0 && rand <= 0.05)
             {
                 rand = Random.NextDouble() - 0.5;
-                return (rand * value) + value;
+                return rand * value + value;
             }
             else
             {
@@ -57,6 +58,14 @@ namespace Neutris.Neuro
                     Neuron? layerNeuron = layer.Neurons[i];
                     layerNeuron.AddSynaps(new Synaps(myNeuron, Mutate(PickParentWeight(i, layerNeuron.Inputs.Count, parent1, parent2), isMutant)));
                 }
+            }
+        }
+
+        public void ClearCache()
+        {
+            foreach (var neuron in Neurons)
+            {
+                neuron.ClearCache();
             }
         }
     }

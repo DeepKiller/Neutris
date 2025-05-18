@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 
-namespace Neutris.Neuro
+namespace Neutris.Neuro.FNN
 {
     internal class Generation
     {
@@ -35,23 +35,27 @@ namespace Neutris.Neuro
 
         private void PlayAndCountBestPoints()
         {
-            List<Task> tasks = [];
-
-            foreach (var network in networks)
+            Parallel.ForEach(networks, (network) =>
             {
-                tasks.Add(Task.Run(() =>
+                GameNeuro<Network> game = new(seed);
+                for (int @try = 0; @try < tries; @try++)
                 {
-                    GameNeuro game = new(seed);
-                    for (int @try = 0; @try < tries; @try++)
-                    {
-                        game.Play(network, false);
-                        network.Score = game.Points > 0 ? game.Ticks * game.Points : game.Ticks;
-                        game.Clear(network);
-                    }
-                }));
-            }
+                    game.Play(network, false);
+                    network.Score = game.Points > 0 ? game.Ticks * game.Points : game.Ticks;
+                    game.Clear(network);
+                }
+            });
 
-            Task.WaitAll([.. tasks]);
+            //foreach (Network network in networks)
+            //{
+            //    GameNeuro game = new(seed);
+            //    for (int @try = 0; @try < tries; @try++)
+            //    {
+            //        game.Play(network, true);
+            //        network.Score = game.Points > 0 ? game.Ticks * game.Points : game.Ticks;
+            //        game.Clear(network);
+            //    }
+            //}
 
             var best = networks.MaxBy(x => x.Score);
             if (best is not null)
@@ -62,7 +66,7 @@ namespace Neutris.Neuro
                     {
                         bestScore = best.Score;
                     }
-                    GameNeuro game = new(seed);
+                    GameNeuro<Network> game = new(seed);
                     game.Play(best, true);
                 }
             }
@@ -83,9 +87,9 @@ namespace Neutris.Neuro
                     summary += net.Score;
                 }
 
-                var count = networks.Length / 5;
+                var count = networks.Length / 4;
 
-                var sorted = networks.OrderByDescending(x => x.Score).Take((int)count);
+                var sorted = networks.OrderByDescending(x => x.Score).Take(count);
 
 
                 while (Pair[1] is null || Pair[0] is null)
@@ -132,8 +136,31 @@ namespace Neutris.Neuro
                 nets[i] = new NetworkPair(networks).CrossOver(layers, layerSize);
             }
 
+            Network[] tour = [.. networks, .. nets];
 
-            return new Generation(size, tries, layers, layerSize, ++generationNumber) { networks = nets };
+            Parallel.ForEach(tour, (net) =>
+            {
+                net.Score = 0;
+            });
+
+            Parallel.ForEach(tour, (network) =>
+            {
+                GameNeuro<Network> game = new(seed >> 3);
+                for (int @try = 0; @try < tries; @try++)
+                {
+                    game.Play(network, false);
+                    network.Score = game.Points > 0 ? game.Ticks * game.Points : game.Ticks;
+                    game.Clear(network);
+                }
+            });
+
+            var best = tour.OrderByDescending(x => x.Score).Take(size);
+            Parallel.ForEach(best, (net) =>
+            {
+                net.Score = 0;
+            });
+
+            return new Generation(size, tries, layers, layerSize, ++generationNumber) { networks = [.. best] };
         }
 
         public Generation MakeNewGeneration()

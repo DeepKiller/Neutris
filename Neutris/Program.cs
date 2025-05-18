@@ -1,7 +1,7 @@
-﻿using Neutris.Neuro;
-using Neutris.Game;
+﻿using Neutris.Game;
 using Neutris.Graphic;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using Neutris.Neuro.FNN;
 
 namespace Neutris
 {
@@ -12,7 +12,7 @@ namespace Neutris
 
             var counter = 0;
 
-            Generation generation = new(1000, 1, 3, 5);
+            Generation generation = new(500, 1, 3, 50);
 
             while (counter <= 10000)
             {
