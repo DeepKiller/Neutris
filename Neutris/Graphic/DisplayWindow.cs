@@ -204,13 +204,38 @@ namespace Neutris.Graphic
             }
         }
 
+        bool paused = false;
+
+        protected override void OnKeyUp(KeyboardKeyEventArgs e)
+        {
+            base.OnKeyUp(e);
+
+            if (e.Key == OpenTK.Windowing.GraphicsLibraryFramework.Keys.Space)
+            {
+                paused = !paused;
+            }
+
+            if (e.Key == OpenTK.Windowing.GraphicsLibraryFramework.Keys.W)
+            {
+                UpdateFrequency += 10;
+            }
+
+            if (e.Key == OpenTK.Windowing.GraphicsLibraryFramework.Keys.S)
+            {
+                UpdateFrequency -= 10;
+            }
+        }
+
         protected override void OnUpdateFrame(FrameEventArgs args)
         {
             base.OnUpdateFrame(args);
 
-            if (Game.UpdateVisual())
+            if (!paused)
             {
-                Close();
+                if (Game.UpdateVisual())
+                {
+                    Close();
+                }
             }
         }
 

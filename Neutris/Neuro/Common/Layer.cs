@@ -19,44 +19,53 @@ namespace Neutris.Neuro.Common
             }
         }
 
-        private static double Mutate(double value, bool isMutant)
+        private static double[] Mutate(double[] value, bool[] isMutant)
         {
-            var rand = Random.NextDouble();
+            for (int i = 0; i < value.Length; i++)
+            {
+                var rand = Random.NextDouble();
+                var mutate = isMutant[i];
 
-            if (isMutant && rand >= 0 && rand <= 0.05)
-            {
-                rand = Random.NextDouble() - 0.5;
-                return rand * value + value;
+                if (mutate && rand >= 0 && rand <= 0.05)
+                {
+                    rand = Random.NextDouble() * 4 - 2;
+                    value[i] = value[i] + rand;
+                }
             }
-            else
-            {
-                return value;
-            }
+
+            return value;
         }
 
-        private static double PickParentWeight(int indexMy, int indexLayer, Layer parent1, Layer parent2)
+        private static double[] PickParentWeight(int indexMy, int indexLayer, Layer parent1, Layer parent2)
         {
             var rand = Random.NextDouble();
 
             if (rand >= 0.5)
             {
-                return parent1.Neurons[indexMy].Inputs[indexLayer].weight;
+                return [parent1.Neurons[indexMy].Inputs[indexLayer].Weight, parent2.Neurons[indexMy].Inputs[indexLayer].Weight];
             }
             else
             {
-                return parent2.Neurons[indexMy].Inputs[indexLayer].weight;
+                return [parent2.Neurons[indexMy].Inputs[indexLayer].Weight, parent1.Neurons[indexMy].Inputs[indexLayer].Weight];
             }
         }
 
-        public void Connect(Layer layer, Layer parent1, Layer parent2, bool isMutant)
+        public static void Connect(Layer child1In, Layer child1Out, Layer child2In, Layer child2Out, Layer parent1, Layer parent2, bool[] isMutant)
         {
-            for (int i1 = 0; i1 < neurons.Length; i1++)
+            for (int inNeurons = 0; inNeurons < child1In.Neurons.Length; inNeurons++)
             {
-                Neuron? myNeuron = neurons[i1];
-                for (int i = 0; i < layer.Neurons.Length; i++)
+                Neuron? child1InNeuron = child1In.Neurons[inNeurons];
+                Neuron? child2InNeuron = child2In.Neurons[inNeurons];
+
+                for (int outNeurons = 0; outNeurons < child1Out.Neurons.Length; outNeurons++)
                 {
-                    Neuron? layerNeuron = layer.Neurons[i];
-                    layerNeuron.AddSynaps(new Synaps(myNeuron, Mutate(PickParentWeight(i, layerNeuron.Inputs.Count, parent1, parent2), isMutant)));
+                    Neuron? child1OutNeuron = child1Out.Neurons[outNeurons];
+                    Neuron? child2OutNeuron = child2Out.Neurons[outNeurons];
+
+                    var parentsWeights = Mutate(PickParentWeight(outNeurons, child1OutNeuron.Inputs.Count, parent1, parent2), isMutant);
+
+                    child1OutNeuron.AddSynaps(new Synaps(child1InNeuron, parentsWeights[0]));
+                    child2OutNeuron.AddSynaps(new Synaps(child2InNeuron, parentsWeights[1]));
                 }
             }
         }

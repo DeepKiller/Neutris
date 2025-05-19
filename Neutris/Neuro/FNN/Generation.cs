@@ -41,26 +41,21 @@ namespace Neutris.Neuro.FNN
                 for (int @try = 0; @try < tries; @try++)
                 {
                     game.Play(network, false);
-                    network.Score = game.Points > 0 ? game.Ticks * game.Points : game.Ticks;
+                    network.Score = (game.Ticks / 100) + (game.Points / 10);
+
+                    if (network.Score == 0)
+                    {
+                        network.Score = 1;
+                    }
+
                     game.Clear(network);
                 }
             });
 
-            //foreach (Network network in networks)
-            //{
-            //    GameNeuro game = new(seed);
-            //    for (int @try = 0; @try < tries; @try++)
-            //    {
-            //        game.Play(network, true);
-            //        network.Score = game.Points > 0 ? game.Ticks * game.Points : game.Ticks;
-            //        game.Clear(network);
-            //    }
-            //}
-
             var best = networks.MaxBy(x => x.Score);
             if (best is not null)
             {
-                if (best.Score > bestScore || generationNumber % 1 == 0)
+                if (best.Score > bestScore || generationNumber % 1000 == 0)
                 {
                     if (best.Score > bestScore)
                     {
@@ -78,7 +73,7 @@ namespace Neutris.Neuro.FNN
 
             public Network[] Pair { get; init; } = new Network[2];
 
-            public NetworkPair(Network[] networks)
+            public NetworkPair(List<Network> networks)
             {
                 double summary = 0;
 
@@ -87,10 +82,9 @@ namespace Neutris.Neuro.FNN
                     summary += net.Score;
                 }
 
-                var count = networks.Length / 4;
+                var count = networks.Count;
 
                 var sorted = networks.OrderByDescending(x => x.Score).Take(count);
-
 
                 while (Pair[1] is null || Pair[0] is null)
                 {
@@ -105,14 +99,14 @@ namespace Neutris.Neuro.FNN
                         n1Chance += percent;
                         n2Chance += percent;
 
-                        if (chance1 < n1Chance)
+                        if (chance1 < n1Chance && Pair[0] is null)
                         {
                             Pair[0] = net;
                             chance1 = int.MaxValue;
                             continue;
                         }
 
-                        if (chance2 < n2Chance)
+                        if (chance2 < n2Chance && Pair[1] is null)
                         {
                             Pair[1] = net;
                             chance2 = int.MaxValue;
@@ -121,40 +115,58 @@ namespace Neutris.Neuro.FNN
                 }
             }
 
-            public Network CrossOver(int layers, int size)
+            public Network[] CrossOver(int layers, int size)
             {
-                return new Network(Pair[0], Pair[1], layers, size);
+                if (Pair[1] is null || Pair[0] is null)
+                {
+                    return [];
+                }
+
+                List<Network> childs = [];
+                var count = random.Next(1, 4);
+
+                for (int i = 0; i < count; i++)
+                {
+                    childs.AddRange(Network.CrossOver(Pair[0], Pair[1], layers, size));
+                }
+
+                return [.. childs];
             }
         }
 
         private Generation CrossingOver()
         {
-            var nets = new Network[networks.Length];
+            var nets = new List<Network>();
+            List<Network> listed = [.. networks];
 
-            for (int i = 0; i < nets.Length; i++)
+            var counter = 0;
+
+            while (counter++ < size)
             {
-                nets[i] = new NetworkPair(networks).CrossOver(layers, layerSize);
+                var res = new NetworkPair(listed).CrossOver(layers, layerSize);
+                if (res.Length > 0)
+                {
+                    nets.AddRange(res);
+                }
             }
 
-            Network[] tour = [.. networks, .. nets];
-
-            Parallel.ForEach(tour, (net) =>
+            Parallel.ForEach(nets, (net) =>
             {
                 net.Score = 0;
             });
 
-            Parallel.ForEach(tour, (network) =>
+            Parallel.ForEach(nets, (network) =>
             {
                 GameNeuro<Network> game = new(seed >> 3);
                 for (int @try = 0; @try < tries; @try++)
                 {
                     game.Play(network, false);
-                    network.Score = game.Points > 0 ? game.Ticks * game.Points : game.Ticks;
+                    network.Score = (game.Ticks / 100) + (game.Points / 10);
                     game.Clear(network);
                 }
             });
 
-            var best = tour.OrderByDescending(x => x.Score).Take(size);
+            var best = nets.OrderByDescending(x => x.Score).Take(size);
             Parallel.ForEach(best, (net) =>
             {
                 net.Score = 0;
@@ -166,7 +178,11 @@ namespace Neutris.Neuro.FNN
         public Generation MakeNewGeneration()
         {
             PlayAndCountBestPoints();
-            Console.WriteLine($"generation: {generationNumber}; minimum points: {networks.Min(x => x.Score)} maximum points: {networks.Max(x => x.Score)}; overal maximum: {bestScore}");
+            Console.WriteLine($"generation: {generationNumber}; " +
+                              $"minimum points: {networks.Min(x => x.Score)} " +
+                              $"average points: {networks.Average(x => (float)x.Score)} " +
+                              $"maximum points: {networks.Max(x => x.Score)}; " +
+                              $"overal maximum: {bestScore}");
             return CrossingOver();
         }
     }

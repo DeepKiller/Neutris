@@ -91,20 +91,31 @@ namespace Neutris.Neuro.FNN
             this.Layers.Last().Connect(OutputLayer!);
         }
 
-        public Network(Network parent1, Network parent2, int layers, int size)
+        public Network()
         {
-            SetBase(layers, size);
 
-            var isMutant = random.NextDouble() > 0.95;
+        }
 
-            InputLayer!.Connect(this.Layers.First(), parent1.Layers.First(), parent2.Layers.First(), isMutant);
+        public static Network[] CrossOver(Network parent1, Network parent2, int layers, int size)
+        {
+            var child1 = new Network();
+            child1.SetBase(layers, size);
+            var child2 = new Network();
+            child2.SetBase(layers, size);
+
+            var isMutant1 = random.NextDouble() > 0.97;
+            var isMutant2 = random.NextDouble() > 0.97;
+
+            Layer.Connect(child1.InputLayer, child1.Layers.First(), child2.InputLayer, child2.Layers.First(), parent1.Layers.First(), parent2.Layers.First(), [isMutant1, isMutant2]);
 
             for (int i = 0; i < layers - 1; i++)
             {
-                this.Layers[i].Connect(this.Layers[i + 1], parent1.Layers[i + 1], parent2.Layers[i + 1], isMutant);
+                Layer.Connect(child1.Layers[i], child1.Layers[i + 1], child2.Layers[i], child2.Layers[i + 1], parent1.Layers[i + 1], parent2.Layers[i + 1], [isMutant1, isMutant2]);
             }
 
-            this.Layers.Last().Connect(OutputLayer!, parent1.OutputLayer, parent2.OutputLayer, isMutant);
+            Layer.Connect(child1.Layers.Last(), child1.OutputLayer, child2.Layers.Last(), child2.OutputLayer, parent1.OutputLayer, parent2.OutputLayer, [isMutant1, isMutant2]);
+
+            return [child1, child2];
         }
 
         private double[] GetFigureType(Figure figure)
